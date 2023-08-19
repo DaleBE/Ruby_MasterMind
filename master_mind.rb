@@ -46,7 +46,7 @@ class CheckGuess
 
   def display_results(result1, result2)
     if result1[true] == 4
-      return puts 'Congrats! You guessed the secret code.'
+      return puts 'Congrats! You figured out the secret code.'
     elsif result1.key?(true)
       puts "Correct colors in correct places: #{result1[true]}"
     end
@@ -57,22 +57,31 @@ end
 
 class GamePlay
 
-  def initialize(code_maker, code_breaker, check_guess)
-    @code_maker = code_maker
-    @code_breaker = code_breaker
-    @check_guess = check_guess
-    @maker_code = @code_maker.color_code
-    @breaker_code = @code_breaker.color_code
+  def initialize
+    @check_guess = CheckGuess.new
   end
 
   def play_game
     puts 'Lets play MasterMind! You will have upto 12 chances to guess the secret color code.'
     puts ''
+    puts 'Do you wish to be the Code Maker, or the Code Breaker? (choose: maker/breaker)'
+
+    choice = gets.chomp!
+
+    choose_role(choice)
 
     code_maker_choose
-    # puts @code_maker.color_code
-
     play_round
+  end
+
+  def choose_role(choice)
+    if choice == 'breaker'
+      @code_maker = Computer.new
+      @code_breaker = Player.new
+    else
+      @code_maker = Player.new
+      @code_breaker = Computer.new
+    end
   end
 
   def play_round
@@ -83,30 +92,30 @@ class GamePlay
       puts "Round: #{round}"
 
       code_breaker_choose
-      @check_guess.compare_codes(@maker_code, @breaker_code)
+      @check_guess.compare_codes(@code_maker.color_code, @code_breaker.color_code)
 
       break if @code_maker.color_code == @code_breaker.color_code
 
       round += 1
     end
 
-    puts "GAME OVER .. The secret code was: #{@maker_code.values.join(' ')}"
+    puts "GAME OVER .. The secret code was: #{@code_maker.color_code.values.join(' ')}"
   end
 
   def code_maker_choose
     @code_maker.generate_color_sequence
-    puts 'The computer has chosen a color code.'
+    puts 'The Code Maker has chosen a color code.'
     puts ''
   end
 
   def code_breaker_choose
     puts 'Code Breaker, please choose a color code.'
     @code_breaker.generate_color_sequence
-    puts "You have chosen: #{@breaker_code.values.join(' ')}"
+    puts "The Code Breaker has chosen: #{@code_breaker.color_code.values.join(' ')}"
   end
 end
 
-new_game = GamePlay.new(Computer.new, Player.new, CheckGuess.new)
+new_game = GamePlay.new
 
 new_game.play_game
 
